@@ -28,6 +28,8 @@ public class MainWindow extends TimerTask
             model.addRow(new Object[]{product.getName(), product.getPrice(), product.getUrl()});
     
         table.setModel(model);
+        table.setRowSorter(null);
+        
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(model.getColumnCount()-1));
     
@@ -63,7 +65,7 @@ public class MainWindow extends TimerTask
             if(selectedRow < 0)
                 return;
             
-            String url = table.getValueAt(selectedRow, model.getColumnCount()-1).toString();
+            String url = model.getValueAt(selectedRow, model.getColumnCount()-1).toString();
             
             try
             {
@@ -88,7 +90,7 @@ public class MainWindow extends TimerTask
             if(selectedRow < 0)
                 return;
 
-            String url = table.getValueAt(selectedRow, model.getColumnCount()-1).toString();
+            String url = model.getValueAt(selectedRow, model.getColumnCount()-1).toString();
             
             try
             {
