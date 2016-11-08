@@ -1,8 +1,7 @@
 import java.util.ArrayList;
-import java.util.TimerTask;
 import java.util.function.Predicate;
 
-public class PriceChecker extends TimerTask
+public class PriceChecker
 {
     private ArrayList<Product> products = new ArrayList<>();
     private FileData file;
@@ -14,6 +13,8 @@ public class PriceChecker extends TimerTask
     public PriceChecker() throws Exception
     {
         file = new FileData(configFilename);
+        
+        System.out.println("Loading config (" + file.getKeys().size() + " items)");
     
         for(Object key : file.getKeys())
             products.add(new Product(key.toString(), priceTag, nameTag));
@@ -30,7 +31,8 @@ public class PriceChecker extends TimerTask
         Product product = new Product(url, priceTag, nameTag);
         products.add(product);
     
-        file.setProperty(url, String.valueOf(product.getLowestPrice()));
+        product.refresh();
+        file.setProperty(url, String.valueOf(product.getPrice()));
         file.save();
     
         System.out.println("Product " + url + " added.");
@@ -53,14 +55,14 @@ public class PriceChecker extends TimerTask
         System.out.println("Product " + url + " removed");
     }
     
-    @Override
-    public void run()
+    public void check()
     {
         try
         {
             for(Product product : products)
             {
-                float currentPrice = product.getLowestPrice();
+                product.refresh();
+                float currentPrice = product.getPrice();
                 file.refresh();
     
                 String property = product.getUrl();
@@ -90,5 +92,10 @@ public class PriceChecker extends TimerTask
         {
             System.out.println("Error: " + e.toString());
         }
+    }
+    
+    ArrayList<Product> getProducts()
+    {
+        return products;
     }
 }

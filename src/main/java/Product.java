@@ -7,23 +7,26 @@ public class Product
     private String m_priceTag;
     private String m_nameTag;
     
+    private float m_price;
     private String m_name;
     
-    public Product(String url, String priceTag, String nameTag)
+    public Product(String url, String priceTag, String nameTag) throws Exception
     {
         m_url = url;
         m_priceTag = priceTag;
         m_nameTag = nameTag;
+    
+        refresh();
     }
     
-    public float getLowestPrice() throws Exception
+    public void refresh() throws Exception
     {
         Document doc = Jsoup.connect(m_url).get();
     
         m_name = doc.select(m_nameTag).first().text();
     
         String value = doc.select(m_priceTag).first().text().replaceAll("'", "");
-        return Float.parseFloat(value);
+        m_price = Float.parseFloat(value);
     }
     
     public String getUrl()
@@ -31,9 +34,14 @@ public class Product
         return m_url;
     }
     
-    public String getName() throws Exception
+    public String getName()
     {
         final int maxLength = 70;
         return m_name.length() > maxLength ? m_name.substring(0, maxLength) + "..." : m_name;
+    }
+    
+    public float getPrice()
+    {
+        return m_price;
     }
 }

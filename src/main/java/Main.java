@@ -1,18 +1,16 @@
+import javax.swing.UIManager;
 import java.util.Timer;
 
 public class Main
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
+        UIManager.setLookAndFeel(
+            UIManager.getSystemLookAndFeelClassName());
+        
+        MainWindow window = new MainWindow();
+    
         Timer timer = new Timer();
-        try
-        {
-            PriceChecker priceChecker = new PriceChecker();
-            timer.schedule(priceChecker, 0, 5000);
-        }
-        catch(Exception e)
-        {
-            System.out.println("Error: " + e.toString());
-        }
+        timer.schedule(window, 5000, 5000);
     }
 }

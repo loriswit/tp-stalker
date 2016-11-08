@@ -32,11 +32,6 @@ public class FileData
         outputFile.close();
     }
     
-    public Properties getProperties()
-    {
-        return config;
-    }
-    
     public String getProperty(String key)
     {
         return config.getProperty(key);
