@@ -20,12 +20,12 @@ public class PriceChecker
             products.add(new Product(key.toString(), priceTag, nameTag));
     }
     
-    public void addProduct(String url) throws Exception
+    public Product addProduct(String url) throws Exception
     {
         if(file.getProperty(url) != null)
         {
             System.out.println("Product " + url + " already exists.");
-            return;
+            return null;
         }
     
         Product product = new Product(url, priceTag, nameTag);
@@ -36,6 +36,8 @@ public class PriceChecker
         file.save();
     
         System.out.println("Product " + url + " added.");
+        
+        return product;
     }
     
     public void removeProduct(String url) throws Exception

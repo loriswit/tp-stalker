@@ -24,7 +24,8 @@ public class MainWindow extends TimerTask
         model.setColumnIdentifiers(new String[]{"Product", "Price", "URL"});
         
         priceChecker = new PriceChecker();
-        updateTable();
+        for(Product product : priceChecker.getProducts())
+            model.addRow(new Object[]{product.getName(), product.getPrice(), product.getUrl()});
     
         table.setModel(model);
         TableColumnModel columnModel = table.getColumnModel();
@@ -45,8 +46,9 @@ public class MainWindow extends TimerTask
             
             try
             {
-                priceChecker.addProduct(url);
-                updateTable();
+                Product product = priceChecker.addProduct(url);
+                if(product != null)
+                    model.addRow(new Object[]{product.getName(), product.getPrice(), product.getUrl()});
             }
             catch(Exception e)
             {
@@ -61,17 +63,22 @@ public class MainWindow extends TimerTask
             if(selectedRow < 0)
                 return;
             
-            String url = model.getValueAt(selectedRow, model.getColumnCount()-1).toString();
+            String url = table.getValueAt(selectedRow, model.getColumnCount()-1).toString();
             
             try
             {
                 priceChecker.removeProduct(url);
-                updateTable();
+                for(int i=0; i<table.getRowCount(); ++i)
+                    if(model.getValueAt(i, model.getColumnCount()-1).toString().equals(url))
+                    {
+                        model.removeRow(i);
+                        return;
+                    }
             }
             catch(Exception e)
             {
                 JOptionPane.showMessageDialog(frame, "Failed to remove product.\n(" + e.toString() + ")",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         });
@@ -81,7 +88,7 @@ public class MainWindow extends TimerTask
             if(selectedRow < 0)
                 return;
 
-            String url = model.getValueAt(selectedRow, model.getColumnCount()-1).toString();
+            String url = table.getValueAt(selectedRow, model.getColumnCount()-1).toString();
             
             try
             {
@@ -104,11 +111,10 @@ public class MainWindow extends TimerTask
     
     private void updateTable()
     {
-        while(model.getRowCount() > 0)
-            model.removeRow(0);
-        
         for(Product product : priceChecker.getProducts())
-            model.addRow(new Object[]{product.getName(), product.getPrice(), product.getUrl()});
+            for(int i=0; i<table.getRowCount(); ++i)
+                if(model.getValueAt(i, model.getColumnCount()-1).toString().equals(product.getUrl()))
+                    model.setValueAt(product.getPrice(), i, 1);
     }
     
     private JFrame frame;
