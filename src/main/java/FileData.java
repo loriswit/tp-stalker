@@ -20,14 +20,14 @@ public class FileData
     
     public void refresh() throws Exception
     {
-        FileInputStream inputFile = new FileInputStream(file.getName());
+        FileInputStream inputFile = new FileInputStream(file);
         config.load(inputFile);
         inputFile.close();
     }
     
     public void save() throws Exception
     {
-        FileOutputStream outputFile = new FileOutputStream(file.getName());
+        FileOutputStream outputFile = new FileOutputStream(file);
         config.store(outputFile, null);
         outputFile.close();
     }

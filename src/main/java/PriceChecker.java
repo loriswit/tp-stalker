@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -6,15 +7,16 @@ public class PriceChecker
     private ArrayList<Product> products = new ArrayList<>();
     private FileData file;
     
-    private final String configFilename = "config";
     private final String priceTag = "td.spaceVert";
     private final String nameTag = "h1";
     
     public PriceChecker() throws Exception
     {
-        file = new FileData(configFilename);
+        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+        String filename = new File(path).getParent() + File.separator + "config";
+        file = new FileData(filename);
         
-        System.out.println("Loading config (" + file.getKeys().size() + " items)");
+        System.out.println("Loading products (" + file.getKeys().size() + " items)");
     
         for(Object key : file.getKeys())
             products.add(new Product(key.toString(), priceTag, nameTag));
