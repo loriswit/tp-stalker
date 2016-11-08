@@ -1,15 +1,11 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.TimerTask;
 import java.util.function.Predicate;
 
 public class PriceChecker extends TimerTask
 {
     private ArrayList<Product> products = new ArrayList<>();
-    private Properties config = new Properties();
+    private FileData file;
     
     private final String configFilename = "config";
     private final String priceTag = "td.spaceVert";
@@ -17,46 +13,39 @@ public class PriceChecker extends TimerTask
     
     public PriceChecker() throws Exception
     {
-        File configFile = new File(configFilename);
-        if(!configFile.exists())
-            configFile.createNewFile();
+        file = new FileData(configFilename);
     
-        FileInputStream inputFile = new FileInputStream(configFilename);
-        config.load(inputFile);
-        inputFile.close();
-    
-        for(Object key : config.keySet())
+        for(Object key : file.getKeys())
             products.add(new Product(key.toString(), priceTag, nameTag));
     }
     
     public void addProduct(String url) throws Exception
     {
-        FileInputStream inputFile = new FileInputStream(configFilename);
-        config.load(inputFile);
-        inputFile.close();
-        
-        if(config.getProperty(url) != null)
+        if(file.getProperty(url) != null)
+        {
+            System.out.println("Product " + url + " already exists.");
             return;
+        }
     
         Product product = new Product(url, priceTag, nameTag);
         products.add(product);
     
-        config.setProperty(url, String.valueOf(product.getLowestPrice()));
-    
-        FileOutputStream outputFile = new FileOutputStream(configFilename);
-        config.store(outputFile, null);
-        outputFile.close();
+        file.setProperty(url, String.valueOf(product.getLowestPrice()));
+        file.save();
     
         System.out.println("Product " + url + " added.");
     }
     
     public void removeProduct(String url) throws Exception
     {
-        FileInputStream inputFile = new FileInputStream(configFilename);
-        config.load(inputFile);
-        inputFile.close();
+        if(file.getProperty(url) == null)
+        {
+            System.out.println("Product " + url + " does not exist.");
+            return;
+        }
         
-        config.remove(url);
+        file.remove(url);
+        file.save();
     
         Predicate<Product> predicate = (product) -> product.getUrl().equals(url);
         products.removeIf(predicate);
@@ -72,13 +61,11 @@ public class PriceChecker extends TimerTask
             for(Product product : products)
             {
                 float currentPrice = product.getLowestPrice();
-                FileInputStream inputFile = new FileInputStream(configFilename);
-                config.load(inputFile);
-                inputFile.close();
+                file.refresh();
     
                 String property = product.getUrl();
                 
-                String oldPrice = config.getProperty(product.getUrl());
+                String oldPrice = file.getProperty(product.getUrl());
                 if(oldPrice == null)
                     throw new Exception("Property " + property + " does not exist.");
                 
@@ -95,17 +82,13 @@ public class PriceChecker extends TimerTask
                     System.out.println(" (CHF " + currentPrice + ").");
                 }
     
-                config.setProperty(property, String.valueOf(currentPrice));
-
-                FileOutputStream outputFile = new FileOutputStream(configFilename);
-                config.store(outputFile, null);
-                outputFile.close();
+                file.setProperty(property, String.valueOf(currentPrice));
+                file.save();
             }
         }
         catch(Exception e)
         {
             System.out.println("Error: " + e.toString());
-            e.printStackTrace();
         }
     }
 }
