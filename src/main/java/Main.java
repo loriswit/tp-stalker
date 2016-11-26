@@ -12,7 +12,7 @@ public class Main
         try
         {
             MainWindow window = new MainWindow();
-            timer.schedule(window, 5000, 5000);
+            timer.schedule(window, 0, 5000);
         }
         catch(Exception e)
         {
